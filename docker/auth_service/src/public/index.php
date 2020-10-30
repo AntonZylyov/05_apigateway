@@ -33,8 +33,15 @@ $app->get('/health', static function (Request $request, Response $response, $arg
 	return \AuthApp\Response::createJsonResponse($response, $result);
 });
 
-$app->any('/auth', static function (Request $request, Response $response, $args) {
-	$sessionId = $request->getCookieParams()['session'] ?? '';
+$app->get('/signin', static function (Request $request, Response $response, $args) {
+	$result = [
+		'message' => 'Please login!'
+	];
+	return \AuthApp\Response::createJsonResponse($response, $result);
+});
+
+$app->any('/authorize', static function (Request $request, Response $response, $args) {
+	$sessionId = (string)($request->getCookieParams()['session'] ?? '');
 	if ($sessionId !== '')
 	{
 		$user = \AuthApp\Session::getUserBySessionId($sessionId);
@@ -51,6 +58,17 @@ $app->any('/auth', static function (Request $request, Response $response, $args)
 
 	return $response
 		->withStatus(401, 'Unauthorized');
+});
+
+$app->get('/logout', static function (Request $request, Response $response, $args) {
+	$sessionId = (string)($request->getCookieParams()['session'] ?? '');
+	if ($sessionId !== '')
+	{
+		\AuthApp\Session::deleteSessionById($sessionId);
+	}
+
+	return
+		$response->withHeader('Set-Cookie', '');
 });
 
 $app->any('/login', static function (Request $request, Response $response, $args) {

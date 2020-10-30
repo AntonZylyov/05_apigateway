@@ -43,5 +43,14 @@ class Session
 		return  null;
 	}
 
+	public static function deleteSessionById(string $sessionId): void
+	{
+		$fields = Database::selectOne(self::tableName, "sessionId = ?", [$sessionId]);
+		if ($fields)
+		{
+			Database::delete(self::tableName, (int)$fields['id']);
+		}
+	}
+
 
 }
